@@ -4,7 +4,7 @@ from shape_generator import ShapeGenerator
 
 s = ShapeGenerator()
 
-im = s.generate_cross(
+im = s.generate_four_corners(
     np.asarray((150, 50, 0), dtype=np.uint8)
 )
 im.show()

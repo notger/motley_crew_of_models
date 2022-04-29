@@ -57,6 +57,7 @@ class ShapeGenerator(object):
         self.N_x = N_x
         self.N_y = N_y
         self.background = (0, 0, 0)
+        self.width = 2
         self.shape_drawing_colour = (1, 1, 1)
 
     def generate_random(self, colouring: Union[Colouring, np.ndarray] = None, shape_type: ShapeTypes = None) -> np.ndarray:
@@ -116,15 +117,35 @@ class ShapeGenerator(object):
         high_y = np.random.uniform(low=im.size[1]//2, high=im.size[1] - 1, size=2)
 
         # Draw the line from top left to bottom right:
-        draw.line(((low_x[0], low_y[0]), (high_x[0], high_y[0])), width=2, fill=self.shape_drawing_colour)
+        draw.line(((low_x[0], low_y[0]), (high_x[0], high_y[0])), width=self.width, fill=self.shape_drawing_colour)
 
         # Draw the line from bottom left to top right:
-        draw.line(((low_x[1], high_y[1]), (high_x[1], low_y[1])), width=2, fill=self.shape_drawing_colour)
+        draw.line(((low_x[1], high_y[1]), (high_x[1], low_y[1])), width=self.width, fill=self.shape_drawing_colour)
 
         return self.colour_in(im, colouring)
 
     def generate_four_corners(self, colouring: np.ndarray) -> np.ndarray:
-        return None
+        im, draw = self.get_canvas()
+
+        # Create the coordinates for four points, one in each quadrant:
+        low_x = np.random.uniform(low=0, high=im.size[0]//2 - 1, size=2)
+        high_x = np.random.uniform(low=im.size[0]//2, high=im.size[0] - 1, size=2)
+        low_y = np.random.uniform(low=0, high=im.size[1]//2 - 1, size=2)
+        high_y = np.random.uniform(low=im.size[1]//2, high=im.size[1] - 1, size=2)
+
+        # For easier readability, create the four points:
+        top_left = (low_x[0], low_y[0])
+        top_right = (high_x[0], low_y[1])
+        bottom_left = (low_x[1], high_y[0])
+        bottom_right = (high_x[1], high_y[1])
+
+        # Draw the four lines:
+        draw.line((top_left, top_right), width=self.width, fill=self.shape_drawing_colour)
+        draw.line((top_right, bottom_right), width=self.width, fill=self.shape_drawing_colour)
+        draw.line((bottom_right, bottom_left), width=self.width, fill=self.shape_drawing_colour)
+        draw.line((bottom_left, top_left), width=self.width, fill=self.shape_drawing_colour)
+
+        return self.colour_in(im, colouring)
 
     def generate_hourglass(self, colouring: np.ndarray) -> np.ndarray:
         return None
@@ -140,7 +161,7 @@ class ShapeGenerator(object):
                 (x_coords[0], y_coords[0]),
                 (x_coords[1], y_coords[1])
             ),
-            width=2, fill=self.shape_drawing_colour
+            width=self.width, fill=self.shape_drawing_colour
         )
 
         return self.colour_in(im, colouring)
