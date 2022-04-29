@@ -57,7 +57,6 @@ class ShapeGenerator(object):
         self.N_x = N_x
         self.N_y = N_y
         self.background = (0, 0, 0)
-        self.width = 2
         self.shape_drawing_colour = (1, 1, 1)
 
     def generate_random(self, colouring: Union[Colouring, np.ndarray] = None, shape_type: ShapeTypes = None) -> np.ndarray:
@@ -155,8 +154,8 @@ class ShapeGenerator(object):
 
         top_left, top_right, bottom_left, bottom_right = self.four_points(im)
 
-        draw.line((top_left, bottom_right), width=self.width, fill=self.shape_drawing_colour)
-        draw.line((top_right, bottom_left), width=self.width, fill=self.shape_drawing_colour)
+        draw.line((top_left, bottom_right), width=1, fill=self.shape_drawing_colour)
+        draw.line((top_right, bottom_left), width=1, fill=self.shape_drawing_colour)
 
         return self.colour_in(im, colouring)
 
@@ -166,10 +165,10 @@ class ShapeGenerator(object):
         top_left, top_right, bottom_left, bottom_right = self.four_points(im)
 
         # Draw the four lines:
-        draw.line((top_left, top_right), width=self.width, fill=self.shape_drawing_colour)
-        draw.line((top_right, bottom_right), width=self.width, fill=self.shape_drawing_colour)
-        draw.line((bottom_right, bottom_left), width=self.width, fill=self.shape_drawing_colour)
-        draw.line((bottom_left, top_left), width=self.width, fill=self.shape_drawing_colour)
+        draw.line((top_left, top_right), width=1, fill=self.shape_drawing_colour)
+        draw.line((top_right, bottom_right), width=1, fill=self.shape_drawing_colour)
+        draw.line((bottom_right, bottom_left), width=1, fill=self.shape_drawing_colour)
+        draw.line((bottom_left, top_left), width=1, fill=self.shape_drawing_colour)
 
         return self.colour_in(im, colouring)
 
@@ -179,10 +178,10 @@ class ShapeGenerator(object):
         top_left, top_right, bottom_left, bottom_right = self.four_points(im)
 
         # Draw the four lines:
-        draw.line((top_left, bottom_right), width=self.width, fill=self.shape_drawing_colour)
-        draw.line((top_left, top_right), width=self.width, fill=self.shape_drawing_colour)
-        draw.line((top_right, bottom_left), width=self.width, fill=self.shape_drawing_colour)
-        draw.line((bottom_left, bottom_right), width=self.width, fill=self.shape_drawing_colour)
+        draw.line((top_left, bottom_right), width=1, fill=self.shape_drawing_colour)
+        draw.line((top_left, top_right), width=1, fill=self.shape_drawing_colour)
+        draw.line((top_right, bottom_left), width=1, fill=self.shape_drawing_colour)
+        draw.line((bottom_left, bottom_right), width=1, fill=self.shape_drawing_colour)
 
         return self.colour_in(im, colouring)
 
@@ -197,16 +196,25 @@ class ShapeGenerator(object):
                 (x_coords[0], y_coords[0]),
                 (x_coords[1], y_coords[1])
             ),
-            width=self.width, fill=self.shape_drawing_colour
+            width=1, fill=self.shape_drawing_colour
         )
 
         return self.colour_in(im, colouring)
 
     def generate_parallel_lines(self, colouring: np.ndarray) -> np.ndarray:
+        im, draw = self.get_canvas()
         return None
 
     def generate_triangle(self, colouring: np.ndarray) -> np.ndarray:
-        return None
+        im, draw =self.get_canvas()
+
+        points = self.four_points(im)
+        choice = np.random.choice(list(range(4)), size=3, replace=False)
+        triangle_points = tuple(points[c] for c in choice)
+
+        draw.polygon(triangle_points, outline=self.shape_drawing_colour, fill=self.background)
+
+        return self.colour_in(im, colouring)
 
     @staticmethod
     def scale_translate_and_rotate(image: np.ndarray) -> np.ndarray:
