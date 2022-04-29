@@ -3,7 +3,7 @@
 Module generates shapes with randomised anchor points and colours.
 
 Usage example:
-    1. gen = ShapeGenerator(N_x=100, N_y=100, N_channels=3)
+    1. gen = ShapeGenerator(N_x=100, N_y=100)
     2. image = gen.generate_random(
         colouring=Colouring.SINGLE_CHANNEL,
         shape_type=None
@@ -13,7 +13,9 @@ Usage example:
 
 import numpy as np
 from enum import Enum
-from typing import Union
+from typing import Union, Tuple
+
+from PIL import Image, ImageDraw
 
 class Colouring(Enum):
     SINGLE_CHANNEL = 1
@@ -31,20 +33,30 @@ class ShapeTypes(Enum):
 
 
 class ShapeGenerator(object):
-    """Generator class to get a follow-up item."""
+    """Generator class to get a follow-up item.
+    
+    Please note that how this whole generation works is that it generates a mask/canvas
+    with black background, on which the PIL-draw functions will be executed.
+
+    Then we will fill in the colours later, as we want to have very special colouring
+    options which are not supported by default (see colouring-function).
+
+    For this reason, for now, only a black background is allowed, though nothing keeps
+    you from later adding an inversion function or replacing black with any other colour.
+    """
     # TODO: Make this generator-style?
 
-    def __init__(self, N_x=100, N_y=100, N_channels=3):
+    def __init__(self, N_x: int = 256, N_y: int = 256):
         """Sets static values for the images to be created.
         
         Parameters:
             N_x: Number of pixels in image's x-axis.
             N_y: Number of pixels in image's y-axis.
-            channels: Number of colour-channels. Three seems like a good number. ;)
         """
         self.N_x = N_x
         self.N_y = N_y
-        self.N_channels = N_channels
+        self.background = (0, 0, 0)
+        self.shape_drawing_colour = (1, 1, 1)
 
     def generate_random(self, colouring: Union[Colouring, np.ndarray] = None, shape_type: ShapeTypes = None) -> np.ndarray:
         """Generates a random shape.
@@ -65,13 +77,30 @@ class ShapeGenerator(object):
         """
         pass
 
-    def colour(self, colouring: np.ndarray) -> np.ndarray:
+    def get_canvas(self) -> Tuple:
+        """Creates an image and a draw object to work on."""
+        im = Image.new('RGB', (self.N_x, self.N_y), self.background)
+        draw = ImageDraw.Draw(im)
+        return im, draw
+
+    def colour_in(self, image: Image, colours: np.ndarray) -> np.ndarray:
         """Colours a mask.
         
-        Takes a 2D-mask of shape (N, M) as input and adds "colours" according to the number of channels.
-        Output will be a 3D-array of shape (N, M, C).
+        Takes an image of shape (N, M, 3) as input and adds "colours".
+        
+        Parameters:
+            image: PILImage-object, which will act as a mask. So it should be binary in nature,
+                   containing zeros where no colour should be and ones where colours should be.
+            colours: numpy-array either of shape (N, M, 3) or (1, 1, 3) which contains the colour
+                     values before masking. Please note that the data type should be uint8, so that
+                     the result will be a valid image.
         """
-        return None
+        if colours.dtype == np.uint8:
+            return Image.fromarray(
+                np.array(image) * colours
+            )
+        else:
+            raise TypeError('Colours array has the wrong data type. Please make sure it is np.uint8.')
 
     def generate_circle(self, colouring: np.ndarray) -> np.ndarray:
         return None
@@ -86,7 +115,20 @@ class ShapeGenerator(object):
         return None
 
     def generate_line(self, colouring: np.ndarray) -> np.ndarray:
-        return None
+        im, draw = self.get_canvas()
+
+        x_coords = np.random.uniform(low=0, high=im.size[0], size=(2))
+        y_coords = np.random.uniform(low=0, high=im.size[1], size=(2))
+
+        draw.line(
+            (
+                (x_coords[0], y_coords[0]),
+                (x_coords[1], y_coords[1])
+            ),
+            width=2, fill=self.shape_drawing_colour
+        )
+
+        return self.colour_in(im, colouring)
 
     def generate_parallel_lines(self, colouring: np.ndarray) -> np.ndarray:
         return None
