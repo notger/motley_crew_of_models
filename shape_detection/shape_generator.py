@@ -203,7 +203,29 @@ class ShapeGenerator(object):
 
     def generate_parallel_lines(self, colouring: np.ndarray) -> np.ndarray:
         im, draw = self.get_canvas()
-        return None
+
+        x_coords = np.random.uniform(low=im.size[0]//10, high=(im.size[0] * 9) // 10, size=(2))
+        y_coords = np.random.uniform(low=im.size[1]//10, high=(im.size[1] * 9) // 10, size=(2))
+
+        x_translation = np.random.uniform(low=im.size[0]//20, high=im.size[0]//10)
+        y_translation = np.random.uniform(low=im.size[1]//20, high=im.size[1]//10)
+
+        draw.line(
+            (
+                (x_coords[0], y_coords[0]),
+                (x_coords[1], y_coords[1])
+            ),
+            width=1, fill=self.shape_drawing_colour
+        )
+        draw.line(
+            (
+                (x_coords[0] + x_translation, y_coords[0] + y_translation),
+                (x_coords[1] + x_translation, y_coords[1] + y_translation)
+            ),
+            width=1, fill=self.shape_drawing_colour
+        )
+
+        return self.colour_in(im, colouring)
 
     def generate_triangle(self, colouring: np.ndarray) -> np.ndarray:
         im, draw =self.get_canvas()
@@ -231,4 +253,5 @@ class ShapeGenerator(object):
         However, since we want to stay with numpy for as long as possible, we will not
         give back a PIL-image, but the resulting 3D-array.
         """
+        # TODO: Shouldn't there be some code here that actually does something? ;)
         return image
