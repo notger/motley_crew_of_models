@@ -45,6 +45,7 @@ class ShapeGenerator(object):
     you from later adding an inversion function or replacing black with any other colour.
     """
     # TODO: Make this generator-style?
+    # TODO: The frequent calls to self.colour_in(im, colour) smell like a generator is in order!
 
     def __init__(self, N_x: int = 256, N_y: int = 256):
         """Sets static values for the images to be created.
@@ -106,7 +107,21 @@ class ShapeGenerator(object):
         return None
 
     def generate_cross(self, colouring: np.ndarray) -> np.ndarray:
-        return None
+        im, draw = self.get_canvas()
+
+        # Create the coordinates for four points, one in each quadrant:
+        low_x = np.random.uniform(low=0, high=im.size[0]//2 - 1, size=2)
+        high_x = np.random.uniform(low=im.size[0]//2, high=im.size[0] - 1, size=2)
+        low_y = np.random.uniform(low=0, high=im.size[1]//2 - 1, size=2)
+        high_y = np.random.uniform(low=im.size[1]//2, high=im.size[1] - 1, size=2)
+
+        # Draw the line from top left to bottom right:
+        draw.line(((low_x[0], low_y[0]), (high_x[0], high_y[0])), width=2, fill=self.shape_drawing_colour)
+
+        # Draw the line from bottom left to top right:
+        draw.line(((low_x[1], high_y[1]), (high_x[1], low_y[1])), width=2, fill=self.shape_drawing_colour)
+
+        return self.colour_in(im, colouring)
 
     def generate_four_corners(self, colouring: np.ndarray) -> np.ndarray:
         return None
