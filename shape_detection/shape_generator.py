@@ -105,7 +105,31 @@ class ShapeGenerator(object):
             raise TypeError('Colours array has the wrong data type. Please make sure it is np.uint8.')
 
     def generate_circle(self, colouring: np.ndarray) -> np.ndarray:
-        return None
+        im, draw = self.get_canvas()
+
+        # Generate a center-point which should lie somewhere in the middle.
+        center = (
+            np.random.uniform(low=im.size[0]//4, high=(im.size[0] * 3) // 4),
+            np.random.uniform(low=im.size[1]//4, high=(im.size[1] * 3) // 4)
+        )
+
+        # Determine the max radius:
+        max_radius = min(
+            center[0], center[1], im.size[0] - center[0], im.size[1] - center[1]
+        )
+
+        # Determine the actual radius:
+        radius = np.random.uniform(low=max_radius // 4, high=(max_radius * 3) // 4)
+
+        # Draw the circle:
+        draw.ellipse(
+            (
+                (center[0] - radius, center[1] - radius),
+                (center[0] + radius, center[1] + radius)
+            ), fill=self.background, outline=self.shape_drawing_colour
+        )
+
+        return self.colour_in(im, colouring)
 
     @staticmethod
     def four_points(im: Image):

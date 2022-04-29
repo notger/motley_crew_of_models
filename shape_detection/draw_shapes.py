@@ -4,7 +4,7 @@ from shape_generator import ShapeGenerator
 
 s = ShapeGenerator()
 
-im = s.generate_hourglass(
+im = s.generate_circle(
     np.asarray((150, 50, 0), dtype=np.uint8)
 )
 im.show()
