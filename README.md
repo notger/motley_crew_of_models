@@ -13,7 +13,8 @@ The thing to note here is that all data is generated on the fly and throw-away, 
 
 ## Time series prediction with LSTM (Pytorch Lightning)
 
-A notebook, preferrably run on Colab to make use of their free GPU instances (TODO: Insert colab-launchable link to notebook.).
+A notebook, preferrably run on Colab to make use of their free GPU instances.
+Use this link to launch the notebook directly from Github (needs a Google account, though) and do not forget to set the runtime to GPU: https://colab.research.google.com/github/notger/motley_crew_of_models/blob/main/timeseries_pred_lstm/demo_lstm_regression_for_timeseries.ipynb .
 
 Creates a synthetic time series in the form of a Markov-series and then sets up an LSTM-model to learn and try to predict these. Very standard stuff, was just curious how well it would work with larger delays.
 
