@@ -26,7 +26,8 @@ from PIL import Image, ImageDraw
 # the forms that are generated.
 Colouring = Enum('Colouring', 'SINGLE_CHANNEL SINGLE_COLOUR RANDOM_PIXELS')
 
-FORMS = 'CIRCLE CROSS FOUR_CORNERS HOURGLASS LINE PARALLEL_LINES TRIANGLE'
+#FORMS = 'CIRCLE CROSS FOUR_CORNERS HOURGLASS LINE PARALLEL_LINES TRIANGLE'
+FORMS = 'CIRCLE CROSS'
 ShapeTypes = Enum('ShapeTypes', FORMS, start=0)
 
 
@@ -59,13 +60,13 @@ class ShapeGenerator(object):
 
         # Generate the lookup for the generator-function available:
         self.generator_function_lookup = {
-            ShapeTypes.CIRCLE: self.generate_circle,
-            ShapeTypes.CROSS: self.generate_cross,
-            ShapeTypes.FOUR_CORNERS: self.generate_four_corners,
-            ShapeTypes.HOURGLASS: self.generate_hourglass,
-            ShapeTypes.LINE: self.generate_line,
-            ShapeTypes.PARALLEL_LINES: self.generate_parallel_lines,
-            ShapeTypes.TRIANGLE:self.generate_triangle
+            'CIRCLE': self.generate_circle,
+            'CROSS': self.generate_cross,
+            'FOUR_CORNERS': self.generate_four_corners,
+            'HOURGLASS': self.generate_hourglass,
+            'LINE': self.generate_line,
+            'PARALLEL_LINES': self.generate_parallel_lines,
+            'TRIANGLE':self.generate_triangle
         }
         # Generate a list to choose randomly from, to not have to do that with every call again:
         self.generator_function_candidates = [k.name for k in ShapeTypes]
@@ -92,7 +93,7 @@ class ShapeGenerator(object):
             shape_type = ShapeTypes[random.choice(self.generator_function_candidates)]
 
         try:
-            generator_function = self.generator_function_lookup[shape_type]
+            generator_function = self.generator_function_lookup[shape_type.name]
         except:
             raise ValueError(f'Parameter shape_type has to be either None or of ShapeTypes, not {shape_type}')
 
