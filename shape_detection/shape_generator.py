@@ -17,19 +17,17 @@ from typing import Union, Tuple
 
 from PIL import Image, ImageDraw
 
-class Colouring(Enum):
-    SINGLE_CHANNEL = 1
-    SINGLE_COLOUR = 2
-    RANDOM_PIXELS = 3
 
-class ShapeTypes(Enum):
-    CIRCLE = 0
-    CROSS = 1
-    FOUR_CORNERS = 2
-    HOURGLASS = 3
-    LINE = 4
-    PARALLEL_LINES = 5
-    TRIANGLE = 6
+# Define the enums.
+# Note that since Pytorch expects the classes to start with zero,
+# but Enums start normally with one, we are overwriting the starting
+# value here and use the syntax able to do this, instead of the regular
+# syntax which is slightly more legible. This way, we can easily change
+# the forms that are generated.
+Colouring = Enum('Colouring', 'SINGLE_CHANNEL SINGLE_COLOUR RANDOM_PIXELS')
+
+FORMS = 'CIRCLE CROSS FOUR_CORNERS HOURGLASS LINE PARALLEL_LINES TRIANGLE'
+ShapeTypes = Enum('ShapeTypes', FORMS, start=0)
 
 
 class ShapeGenerator(object):
