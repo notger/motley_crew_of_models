@@ -70,7 +70,7 @@ class ShapeGenerator(object):
             ShapeTypes.TRIANGLE:self.generate_triangle
         }
         # Generate a list to choose randomly from, to not have to do that with every call again:
-        self.generator_function_candidates = list(self.generator_function_lookup.values())
+        self.generator_function_candidates = [k.name for k in ShapeTypes]
 
     def generate_random(self, colouring: Union[Colouring, np.ndarray] = None, shape_type: ShapeTypes = None) -> np.ndarray:
         """Generates a random shape.
@@ -91,12 +91,12 @@ class ShapeGenerator(object):
         """
         # First determine a shape, if we haven't gotten one passed:
         if shape_type is None:
-            generator_function = random.choice(self.generator_function_candidates)
-        else:
-            try:
-                generator_function = self.generator_function_lookup[shape_type]
-            except:
-                raise ValueError(f'Parameter shape_type has to be either None or of ShapeTypes, not {shape_type}')
+            shape_type = ShapeTypes[random.choice(self.generator_function_candidates)]
+
+        try:
+            generator_function = self.generator_function_lookup[shape_type]
+        except:
+            raise ValueError(f'Parameter shape_type has to be either None or of ShapeTypes, not {shape_type}')
 
         # Then determine the colouring (we do this old-school style, as I currently still write in 3.8):
         if colouring == Colouring.SINGLE_CHANNEL:
@@ -117,7 +117,7 @@ class ShapeGenerator(object):
         else:
             raise ValueError(f"Colouring parameter has to be of type Colouring, not {colouring}")
 
-        return generator_function(colour)
+        return generator_function(colour), shape_type
 
     def get_canvas(self) -> Tuple:
         """Creates an image and a draw object to work on."""

@@ -9,5 +9,6 @@ if __name__ == '__main__':
     #im = s.generate_parallel_lines(
     #    np.asarray((150, 50, 0), dtype=np.uint8)
     #
-    im = s.generate_random(colouring=Colouring.RANDOM_PIXELS)
+    im, shape_type = s.generate_random(colouring=Colouring.RANDOM_PIXELS)
+    print(f'Generated {shape_type}')
     im.show()
