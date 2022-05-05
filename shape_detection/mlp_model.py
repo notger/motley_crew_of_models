@@ -3,18 +3,14 @@
 import torch
 import pytorch_lightning as pl
 
-from shape_generator import ShapeTypes
-
 
 class ShapeDetectorModelMLP(pl.LightningModule):
 
-    def __init__(self):
+    def __init__(self, N_x=50, N_y=50, N_c=3, N_target=10):
         super(ShapeDetectorModelMLP, self).__init__()
-        #self.fc1 = torch.nn.Linear(100 * 100, 256)
-        self.fc1 = torch.nn.Linear(28 * 28, 256)
+        self.fc1 = torch.nn.Linear(N_x * N_y * N_c, 256)
         self.fc2 = torch.nn.Linear(256, 128)
-        #self.out = torch.nn.Linear(128, len(ShapeTypes))
-        self.out = torch.nn.Linear(128, 10)
+        self.out = torch.nn.Linear(128, N_target)
         self.lr = 0.001
         self.loss = torch.nn.CrossEntropyLoss()
 

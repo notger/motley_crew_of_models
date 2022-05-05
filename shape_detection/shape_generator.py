@@ -23,13 +23,13 @@ class Colouring(Enum):
     RANDOM_PIXELS = 3
 
 class ShapeTypes(Enum):
-    CIRCLE = 1
-    CROSS = 2
-    FOUR_CORNERS = 3
-    HOURGLASS = 4
-    LINE = 5
-    PARALLEL_LINES = 6
-    TRIANGLE = 7
+    CIRCLE = 0
+    CROSS = 1
+    FOUR_CORNERS = 2
+    HOURGLASS = 3
+    LINE = 4
+    PARALLEL_LINES = 5
+    TRIANGLE = 6
 
 
 class ShapeGenerator(object):
@@ -117,7 +117,7 @@ class ShapeGenerator(object):
         else:
             raise ValueError(f"Colouring parameter has to be of type Colouring, not {colouring}")
 
-        return generator_function(colour), shape_type
+        return generator_function(colour), shape_type.value
 
     def get_canvas(self) -> Tuple:
         """Creates an image and a draw object to work on."""
