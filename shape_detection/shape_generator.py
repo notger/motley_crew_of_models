@@ -10,7 +10,7 @@ Usage example:
     )
 """
 
-
+import random
 import numpy as np
 from enum import Enum
 from typing import Union, Tuple
@@ -59,6 +59,19 @@ class ShapeGenerator(object):
         self.background = (0, 0, 0)
         self.shape_drawing_colour = (1, 1, 1)
 
+        # Generate the lookup for the generator-function available:
+        self.generator_function_lookup = {
+            ShapeTypes.CIRCLE: self.generate_circle,
+            ShapeTypes.CROSS: self.generate_cross,
+            ShapeTypes.FOUR_CORNERS: self.generate_four_corners,
+            ShapeTypes.HOURGLASS: self.generate_hourglass,
+            ShapeTypes.LINE: self.generate_line,
+            ShapeTypes.PARALLEL_LINES: self.generate_parallel_lines,
+            ShapeTypes.TRIANGLE:self.generate_triangle
+        }
+        # Generate a list to choose randomly from, to not have to do that with every call again:
+        self.generator_function_candidates = list(self.generator_function_lookup.values())
+
     def generate_random(self, colouring: Union[Colouring, np.ndarray] = None, shape_type: ShapeTypes = None) -> np.ndarray:
         """Generates a random shape.
         
@@ -76,7 +89,35 @@ class ShapeGenerator(object):
                         are available. They are rather self-explanatory (I hope). If you want to visually inspect
                         them, check out the script `draw_shapes.py` in the same folder.
         """
-        pass
+        # First determine a shape, if we haven't gotten one passed:
+        if shape_type is None:
+            generator_function = random.choice(self.generator_function_candidates)
+        else:
+            try:
+                generator_function = self.generator_function_lookup[shape_type]
+            except:
+                raise ValueError(f'Parameter shape_type has to be either None or of ShapeTypes, not {shape_type}')
+
+        # Then determine the colouring (we do this old-school style, as I currently still write in 3.8):
+        if colouring == Colouring.SINGLE_CHANNEL:
+            colour = np.zeros((3,), dtype=np.uint8)
+            colour[np.random.randint(3)] = np.random.randint(255) + 1
+
+        elif colouring == Colouring.SINGLE_COLOUR:
+            colour = np.random.randint(256, size=3, dtype=np.uint8)
+
+        elif colouring == Colouring.RANDOM_PIXELS:
+            # Please note that we have to generate the pixelwise random colours
+            # with flipped axis, so N_y first, then N_x, due to how PIL handles these things:
+            colour = np.random.randint(256, size=(self.N_y, self.N_x, 3), dtype=np.uint8)
+
+        elif type(colouring) == np.ndarray:
+            colour = colouring
+
+        else:
+            raise ValueError(f"Colouring parameter has to be of type Colouring, not {colouring}")
+
+        return generator_function(colour)
 
     def get_canvas(self) -> Tuple:
         """Creates an image and a draw object to work on."""
