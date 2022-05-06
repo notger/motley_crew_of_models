@@ -13,7 +13,7 @@ if __name__ == '__main__':
     #data = MNISTDataLoader() 
     #clf = ShapeDetectorModelMLP(N_x=28, N_y=28, N_c=1, N_target=10)
 
-    data = ShapeIterableDataLoader(N_x=50, N_y=50, batch_size=100, colouring=Colouring.SINGLE_COLOUR)
+    data = ShapeIterableDataLoader(N_x=50, N_y=50, batch_size=1000, colouring=Colouring.SINGLE_COLOUR)
     #clf = ShapeDetectorModelMLP(N_x=50, N_y=50, N_c=3, N_target=len(ShapeTypes))
     clf = ShapeDetectorModelCNN(N_c=3, N_target=len(ShapeTypes), learning_rate=0.001)
 
