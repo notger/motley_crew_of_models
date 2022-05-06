@@ -27,10 +27,10 @@ class ShapeDetectorModelMLP(pl.LightningModule):
     def training_step(self, train_batch, batch_idx):
         x, y = train_batch
         logits = self.forward(x)
-        return self.loss(logits,y)
+        return self.loss(logits, y)
 
     def validation_step(self, valid_batch, batch_idx):
         x, y = valid_batch
         print(x.shape)
         logits = self.forward(x)
-        return self.loss(logits,y)
+        return self.loss(logits, y)
