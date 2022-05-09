@@ -51,7 +51,12 @@ class ShapeIterableDataLoader(pl.LightningDataModule):
             ShapeIterableDataset(self.N_x, self.N_y, colouring=self.colouring, batch_size=self.batch_size)
         )
     
-    def train_dataloader(self):
+    def val_dataloader(self):
+        return DataLoader(
+            ShapeIterableDataset(self.N_x, self.N_y, colouring=self.colouring, batch_size=self.batch_size),
+        )
+    
+    def test_dataloader(self):
         return DataLoader(
             ShapeIterableDataset(self.N_x, self.N_y, colouring=self.colouring, batch_size=self.batch_size),
         )
