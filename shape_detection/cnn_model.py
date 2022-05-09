@@ -27,13 +27,15 @@ class ShapeDetectorModelCNN(pl.LightningModule):
         self.linear3 = torch.nn.Linear(in_features=450 * 9, out_features=500)
         self.relu3 = torch.nn.ReLU()
 
+        self.dropout = torch.nn.Dropout(p=0.3)
+
         self.linear4 = torch.nn.Linear(in_features=500, out_features=N_target)
         self.logsoftmax4 = torch.nn.Softmax(dim=1)
 
     def forward(self, x):
         z1 = self.bn1(self.maxpool1(self.relu1(self.conv1(x))))
         z2 = self.bn2(self.maxpool2(self.relu2(self.conv2(z1))))
-        z3 = self.relu3(self.linear3(torch.flatten(z2, 1)))
+        z3 = self.dropout(self.relu3(self.linear3(torch.flatten(z2, 1))))
         return self.logsoftmax4(self.linear4(z3))
 
     def configure_optimizers(self):
