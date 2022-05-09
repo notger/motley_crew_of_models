@@ -8,15 +8,23 @@ the model and data_loader.py for the data-loaders.
 
 import pytorch_lightning as pl
 
-from data_loader import ShapeIterableDataLoader
+from data_loader import ShapeIterableDataset, ShapeIterableDataLoader
 from cnn_model import ShapeDetectorModelCNN
 
 from shape_generator import ShapeTypes, Colouring
 
 if __name__ == '__main__':
+    # Hyperparameters:
+    N_x, N_y, N_c, N_target = 50, 50, 3, len(ShapeTypes)
+    colouring = Colouring.SINGLE_COLOUR
+    batch_size = 100
+    learning_rate = 0.001
+    max_epochs = 10
+    analyse_last_model_trained = True
+
     # Set up model and data:
-    data_module = ShapeIterableDataLoader(N_x=50, N_y=50, batch_size=100, colouring=Colouring.SINGLE_COLOUR)
-    shape_cnn = ShapeDetectorModelCNN(N_c=3, N_target=len(ShapeTypes), learning_rate=0.001)
+    data_module = ShapeIterableDataLoader(N_x=N_x, N_y=N_y, batch_size=batch_size, colouring=colouring)
+    shape_cnn = ShapeDetectorModelCNN(N_c=N_c, N_target=N_target, learning_rate=learning_rate)
 
     model_checkpoint_callback = pl.callbacks.ModelCheckpoint(
         dirpath='checkpoints',
@@ -38,7 +46,39 @@ if __name__ == '__main__':
         logger=logger,
         gpus=0,
         accelerator='dp', 
-        max_epochs=100,
+        max_epochs=max_epochs,
     )
 
     trainer.fit(model=shape_cnn, datamodule=data_module)
+
+    # After training, let's do some analysis:
+    if analyse_last_model_trained:
+        import seaborn as sns
+        import matplotlib.pyplot as plt
+        from sklearn.metrics import confusion_matrix
+
+        test_data = ShapeIterableDataset(N_x, N_y, colouring, batch_size=batch_size)
+
+        # Generate labels and predictions:
+        predictions = []
+        labels = []
+        shape_cnn.freeze()
+        for im_tensor, label in test_data:
+            yp = shape_cnn(im_tensor.unsqueeze(dim=0))
+            predictions.append(yp.numpy().argmax())
+            labels.append(label)
+        shape_cnn.unfreeze()
+
+        # Plot the results:
+        sns.set(rc={"figure.figsize":(15, 10)})
+        ax = sns.heatmap(
+            confusion_matrix(labels, predictions, normalize='true'), 
+            annot=True
+        )
+        _ = ax.set(
+            xlabel='predicted as', 
+            ylabel='true label', 
+            xticklabels=[s.name for s in ShapeTypes],
+            yticklabels=[s.name for s in ShapeTypes]
+        )
+        plt.show()
