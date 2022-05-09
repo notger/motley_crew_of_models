@@ -39,10 +39,20 @@ class ShapeDetectorModelCNN(pl.LightningModule):
     def configure_optimizers(self):
         return torch.optim.SGD(self.parameters(), lr = self.lr)
 
-    def training_step(self, train_batch, batch_idx):
-        x, y = train_batch
-        return self.loss(self.forward(x), y)
+    def training_step(self, batch, batch_idx):
+        x, y = batch
+        loss = self.loss(self.forward(x), y)
+        self.log('train_loss', loss, prog_bar=True, logger=True)
+        return loss
 
-    def validation_step(self, valid_batch, batch_idx):
-        x, y = valid_batch
-        return self.loss(self.forward(x), y)
+    def validation_step(self, batch, batch_idx):
+        x, y = batch
+        loss = self.loss(self.forward(x), y)
+        self.log('val_loss', loss, prog_bar=True, logger=True)
+        return loss
+
+    def test_step(self, batch, batch_idx):
+        x, y = batch
+        loss = self.loss(self.forward(x), y)
+        self.log('test_loss', loss, prog_bar=True, logger=True)
+        return loss

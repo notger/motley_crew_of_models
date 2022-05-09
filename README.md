@@ -6,10 +6,16 @@ Nothing too serious, nothing production-ready and nothing really of too much int
 
 # Contents
 
-## Shape detection with X (Y)
+## Shape detection with a CNN
 
 A generator for shapes (e.g. lines, crosses, ...) in various colours which gets hooked up with a shape connector to solve the classification problem of identifying the shapes.
 The thing to note here is that all data is generated on the fly and throw-away, i.e. the model will ever only see the data once.
+
+Usage: 
+- Start TensorBoard with `tensorboard --logdir ./lightning_logs`
+- Start the training with `python3 trainer.py`
+
+If you want to change the batch sizes or other hyperparameters, then `trainer.py` is your friend.
 
 ## Time series prediction with LSTM (Pytorch Lightning)
 
