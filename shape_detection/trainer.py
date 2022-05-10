@@ -16,11 +16,12 @@ from shape_generator import ShapeTypes, Colouring
 if __name__ == '__main__':
     # Hyperparameters:
     N_x, N_y, N_c, N_target = 50, 50, 3, len(ShapeTypes)
-    colouring = Colouring.SINGLE_COLOUR
-    batch_size = 100
-    learning_rate = 0.001
-    max_epochs = 10
-    analyse_last_model_trained = True
+    colouring = Colouring.RANDOM_PIXELS
+    batch_size = 1000
+    learning_rate = 0.0001
+    optimise_learning_rate = False  # If set to True, the learning-rate-setting will be ignored, obviously.
+    max_epochs = 300
+    analyse_last_model_trained = False
 
     # Set up model and data:
     data_module = ShapeIterableDataLoader(N_x=N_x, N_y=N_y, batch_size=batch_size, colouring=colouring)
@@ -29,25 +30,31 @@ if __name__ == '__main__':
     model_checkpoint_callback = pl.callbacks.ModelCheckpoint(
         dirpath='checkpoints',
         verbose=True,
+        save_last=True,
         save_top_k=1,
-        filename='shape_identification_best',
+        #filename='shape_identification_best',
+        filename='{epoch}-{step}-{val_loss:.4f}',
         monitor=['train_loss', 'val_loss'],
         mode='min',
     )
 
-    early_stopping_callback = pl.callbacks.EarlyStopping('val_loss', 0.0001, patience=5, verbose=True, mode='min')
+    #early_stopping_callback = pl.callbacks.EarlyStopping('val_loss', 0.0001, patience=5, verbose=True, mode='min')
 
-    logger = pl.loggers.TensorBoardLogger('lightning_logs', name='shape_identification')
+    logger = pl.loggers.TensorBoardLogger('lightning_logs', name='shape_identification', version='full_train')
 
     trainer = pl.Trainer(
         checkpoint_callback=model_checkpoint_callback,
-        callbacks=[early_stopping_callback],
-        check_val_every_n_epoch=5,
+        #callbacks=[early_stopping_callback],
+        check_val_every_n_epoch=1,
         logger=logger,
-        gpus=0,
-        accelerator='dp', 
+        gpus=1,
         max_epochs=max_epochs,
     )
+
+    if optimise_learning_rate:
+        lr_finder = trainer.tuner.lr_find(shape_cnn, data_module, max_lr = 0.01)
+        shape_cnn.learning_rate = lr_finder.suggestion()
+        print(f'Learning rate is optimised to {lr_finder.suggestion()}.')
 
     trainer.fit(model=shape_cnn, datamodule=data_module)
 

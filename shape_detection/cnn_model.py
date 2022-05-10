@@ -14,29 +14,35 @@ class ShapeDetectorModelCNN(pl.LightningModule):
         self.loss = torch.nn.CrossEntropyLoss()
 
         # Basic architecture, reminiscent of LeNet with a bit of batch normalisation:
-        self.conv1 = torch.nn.Conv2d(in_channels=N_c, out_channels=20, kernel_size=(5, 5))
+        self.conv1 = torch.nn.Conv2d(in_channels=N_c, out_channels=40, kernel_size=(5, 5), padding=2, dilation=2)
         self.relu1 = torch.nn.ReLU()
-        self.maxpool1 = torch.nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2))
-        self.bn1 = torch.nn.BatchNorm2d(20)
+        self.maxpool1 = torch.nn.MaxPool2d(kernel_size=(2, 2), stride=(1, 1))
+        self.bn1 = torch.nn.BatchNorm2d(40)
 
-        self.conv2 = torch.nn.Conv2d(in_channels=20, out_channels=50, kernel_size=(5, 5))
+        self.conv2 = torch.nn.Conv2d(in_channels=40, out_channels=50, kernel_size=(5, 5), padding=2, dilation=2)
         self.relu2 = torch.nn.ReLU()
-        self.maxpool2 = torch.nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2))
+        self.maxpool2 = torch.nn.MaxPool2d(kernel_size=(2, 2), stride=(1, 1))
         self.bn2 = torch.nn.BatchNorm2d(50)
 
-        self.linear3 = torch.nn.Linear(in_features=450 * 9, out_features=500)
+        self.conv3 = torch.nn.Conv2d(in_channels=50, out_channels=50, kernel_size=(5, 5), padding=2, dilation=2)
         self.relu3 = torch.nn.ReLU()
+        self.maxpool3 = torch.nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2))
+        self.bn3 = torch.nn.BatchNorm2d(50)
 
-        self.dropout = torch.nn.Dropout(p=0.3)
+        self.linear4 = torch.nn.Linear(in_features=16200, out_features=500)
+        self.relu4 = torch.nn.ReLU()
 
-        self.linear4 = torch.nn.Linear(in_features=500, out_features=N_target)
-        self.logsoftmax4 = torch.nn.Softmax(dim=1)
+        self.dropout = torch.nn.Dropout(p=0.5)
+
+        self.linear5 = torch.nn.Linear(in_features=500, out_features=N_target)
+        self.logsoftmax5 = torch.nn.Softmax(dim=1)
 
     def forward(self, x):
         z1 = self.bn1(self.maxpool1(self.relu1(self.conv1(x))))
         z2 = self.bn2(self.maxpool2(self.relu2(self.conv2(z1))))
-        z3 = self.dropout(self.relu3(self.linear3(torch.flatten(z2, 1))))
-        return self.logsoftmax4(self.linear4(z3))
+        z3 = self.bn3(self.maxpool3(self.relu3(self.conv3(z2))))
+        z4 = self.dropout(self.relu4(self.linear4(torch.flatten(z3, 1))))
+        return self.logsoftmax5(self.linear5(z4))
 
     def configure_optimizers(self):
         return torch.optim.SGD(self.parameters(), lr = self.lr)
