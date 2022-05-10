@@ -18,14 +18,18 @@ if __name__ == '__main__':
     N_x, N_y, N_c, N_target = 50, 50, 3, len(ShapeTypes)
     colouring = Colouring.RANDOM_PIXELS
     batch_size = 1000
-    learning_rate = 0.0001
+    learning_rate = 0.00001
     optimise_learning_rate = False  # If set to True, the learning-rate-setting will be ignored, obviously.
     max_epochs = 300
     analyse_last_model_trained = False
 
     # Set up model and data:
     data_module = ShapeIterableDataLoader(N_x=N_x, N_y=N_y, batch_size=batch_size, colouring=colouring)
-    shape_cnn = ShapeDetectorModelCNN(N_c=N_c, N_target=N_target, learning_rate=learning_rate)
+    #shape_cnn = ShapeDetectorModelCNN(N_c=N_c, N_target=N_target, learning_rate=learning_rate)
+    shape_cnn = ShapeDetectorModelCNN.load_from_checkpoint(
+        checkpoint_path='lightning_logs/shape_identification/full_train/checkpoints/epoch=299-step=299999.ckpt',
+        N_c=N_c, N_target=N_target,
+    )
 
     model_checkpoint_callback = pl.callbacks.ModelCheckpoint(
         dirpath='checkpoints',
@@ -34,17 +38,19 @@ if __name__ == '__main__':
         save_top_k=1,
         #filename='shape_identification_best',
         filename='{epoch}-{step}-{val_loss:.4f}',
-        monitor=['train_loss', 'val_loss'],
+        monitor='val_loss',
         mode='min',
     )
 
     #early_stopping_callback = pl.callbacks.EarlyStopping('val_loss', 0.0001, patience=5, verbose=True, mode='min')
 
+    callbacks = [model_checkpoint_callback]
+
     logger = pl.loggers.TensorBoardLogger('lightning_logs', name='shape_identification', version='full_train')
 
     trainer = pl.Trainer(
-        checkpoint_callback=model_checkpoint_callback,
-        #callbacks=[early_stopping_callback],
+        #checkpoint_callback=model_checkpoint_callback,
+        callbacks=callbacks,
         check_val_every_n_epoch=1,
         logger=logger,
         gpus=1,

@@ -134,3 +134,4 @@ dmypy.json
 # Pytorch Lightning and other:
 MNIST
 lightning_logs
+checkpoints
