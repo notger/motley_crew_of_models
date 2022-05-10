@@ -17,6 +17,10 @@ Usage:
 
 If you want to change the batch sizes or other hyperparameters, then `trainer.py` is your friend.
 
+For a more user-friendly version, please see the accompanying notebook. Note that the code there is mostly copy-pasted and then expanded from the regular source code.
+This had to be done as including source files when running a notebook on Colab is a hassle (read: did not get it to work before I lost interest in sinking time into that).
+However, the notebook is a bit prettier in terms of the analysis plots.
+
 ## Time series prediction with LSTM (Pytorch Lightning)
 
 A notebook, preferrably run on Colab to make use of their free GPU instances.
