@@ -21,16 +21,19 @@ if __name__ == '__main__':
     learning_rate = 0.00001
     optimise_learning_rate = False  # If set to True, the learning-rate-setting will be ignored, obviously.
     max_epochs = 300
-    analyse_last_model_trained = False
+    load_model = False
+    load_model_path = 'checkpoints/best.ckpt'
 
     # Set up model and data:
     data_module = ShapeIterableDataLoader(N_x=N_x, N_y=N_y, batch_size=batch_size, colouring=colouring)
-    #shape_cnn = ShapeDetectorModelCNN(N_c=N_c, N_target=N_target, learning_rate=learning_rate)
-    shape_cnn = ShapeDetectorModelCNN.load_from_checkpoint(
-        checkpoint_path='lightning_logs/shape_identification/full_train/checkpoints/epoch=299-step=299999.ckpt',
-        N_c=N_c, N_target=N_target,
-    )
-
+    if load_model:
+        shape_cnn = ShapeDetectorModelCNN.load_from_checkpoint(
+            checkpoint_path='checkpoints/best.ckpt',
+            N_c=N_c, N_target=N_target,
+        )
+    else:
+        shape_cnn = ShapeDetectorModelCNN(N_c=N_c, N_target=N_target, learning_rate=learning_rate)
+    
     model_checkpoint_callback = pl.callbacks.ModelCheckpoint(
         dirpath='checkpoints',
         verbose=True,
@@ -63,35 +66,3 @@ if __name__ == '__main__':
         print(f'Learning rate is optimised to {lr_finder.suggestion()}.')
 
     trainer.fit(model=shape_cnn, datamodule=data_module)
-
-    # After training, let's do some analysis:
-    if analyse_last_model_trained:
-        import seaborn as sns
-        import matplotlib.pyplot as plt
-        from sklearn.metrics import confusion_matrix
-
-        test_data = ShapeIterableDataset(N_x, N_y, colouring, batch_size=batch_size)
-
-        # Generate labels and predictions:
-        predictions = []
-        labels = []
-        shape_cnn.freeze()
-        for im_tensor, label in test_data:
-            yp = shape_cnn(im_tensor.unsqueeze(dim=0))
-            predictions.append(yp.numpy().argmax())
-            labels.append(label)
-        shape_cnn.unfreeze()
-
-        # Plot the results:
-        sns.set(rc={"figure.figsize":(15, 10)})
-        ax = sns.heatmap(
-            confusion_matrix(labels, predictions, normalize='true'), 
-            annot=True
-        )
-        _ = ax.set(
-            xlabel='predicted as', 
-            ylabel='true label', 
-            xticklabels=[s.name for s in ShapeTypes],
-            yticklabels=[s.name for s in ShapeTypes]
-        )
-        plt.show()
