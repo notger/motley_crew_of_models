@@ -28,3 +28,6 @@ Use this link to launch the notebook directly from Github (needs a Google accoun
 
 Creates a synthetic time series in the form of a Markov-series and then sets up an LSTM-model to learn and try to predict these. Very standard stuff, was just curious how well it would work with larger delays.
 
+## Transformers homebrew
+
+Just a home-written transformer, as I wanted to know how they work so I thought I wrote them for myself. No real problem attached to it, this time, as I think that Transformers are applied to problems which are way out league for everyone but Meta, Google or the like.
