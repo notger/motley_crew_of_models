@@ -53,7 +53,7 @@ class _DecoderLayer(torch.nn.Module):
         # only minor losses to readability.)
         return self.feed_forward(
             self.attention_memory(
-                self.attention(y, y, y),
+                self.attention_y(y, y, y),
                 memory,
                 memory,
             )

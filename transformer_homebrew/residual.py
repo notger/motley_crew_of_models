@@ -20,10 +20,10 @@ class Residual(torch.nn.Module):
         self.norm = torch.nn.LayerNorm(dim)
         self.dropout = torch.nn.Dropout(dropout)
 
-    def forward(self, *args):
+    def forward(self, *tensors: torch.Tensor):
         # Please note that we expect the args to contain tensors which have
         # been calculated by other modules and might come alone or in the Q, K, V ordering.
         # The output would then be Res = Norm(Q + dropout((Q, K, V)))
         return self.norm(
-            args[0] + self.dropout(self.layer(args))
+            tensors[0] + self.dropout(self.layer(*tensors))
         )

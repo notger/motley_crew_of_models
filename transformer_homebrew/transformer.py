@@ -44,7 +44,7 @@ class Transformer(pl.LightningModule):
             dropout=dropout,
         )
 
-    def feedforward(self, x: torch.Tensor, y: torch.Tensor):
+    def forward(self, x: torch.Tensor, y: torch.Tensor):
         """Feedforward step.
 
         Params:
