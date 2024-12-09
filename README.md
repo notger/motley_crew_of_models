@@ -31,3 +31,7 @@ Creates a synthetic time series in the form of a Markov-series and then sets up 
 ## Transformers homebrew
 
 Just a home-written transformer, as I wanted to know how they work so I thought I wrote them for myself. No real problem attached to it, this time, as I think that Transformers are applied to problems which are way out league for everyone but Meta, Google or the like.
+
+## Variational auto encoder (Pytorch)
+
+A "Fingerübung" to play around with Pytorch and a variational auto-encoder. Used sklearn's data generation method.

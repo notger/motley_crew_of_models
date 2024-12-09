@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+jupyter = "*"
+numpy = "*"
+pandas = "*"
+pytorch_lightning = "*"
+seaborn = "*"
+scikit-learn = "*"
+torch = "*"
+tqdm = "*"
+
+[requires]
+python_version = "3.12"
