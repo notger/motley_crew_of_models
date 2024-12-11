@@ -25,4 +25,5 @@ class VariationalAutoEncoder(torch.nn.Module):
         return leaky_relu(self.bn_dec2(self.dec2(x1)))
 
     def forward(self, x):
-        raise NotImplementedError()
+        e = self.encode(x)
+        return self.decode(e), e

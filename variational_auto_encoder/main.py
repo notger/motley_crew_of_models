@@ -9,10 +9,19 @@ from vae import VariationalAutoEncoder
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+# Parameter section:
+N_SAMPLES = 1000
+N_FEATURES = 20
+N_INFORMATIVE = 5
+N_REDUNDANT = 10
+N_CLUSTERS_PER_CLASS = 2
+N_EMBEDDINGS = 5
+
 
 # Generate the data to work on and split it into training and testing sets:
 X, y = make_classification(
-    n_samples=1000, n_features=20, n_informative=5, n_redundant=10, n_clusters_per_class=2, random_state=19770521,
+    n_samples=N_SAMPLES, n_features=N_FEATURES, n_informative=N_INFORMATIVE, n_redundant=N_REDUNDANT,
+    n_clusters_per_class=N_REDUNDANT, random_state=19770521,
 )
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=19770521)
 mmscaler = MinMaxScaler()
@@ -34,4 +43,11 @@ test_loader = DataLoader(test_set, batch_size=32, shuffle=False)
 
 
 # Set up the model:
-pass
+vae = VariationalAutoEncoder(num_features=N_FEATURES, num_embeddings=N_EMBEDDINGS).to(DEVICE)
+optimiser = torch.optim.Adam(vae.parameters(), lr=0.001)
+
+
+# Define the loss function:
+def loss(x, x_hat):
+    """Simple quadratic loss function."""
+    return torch.mean((x - x_hat) ** 2)
