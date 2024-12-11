@@ -11,14 +11,14 @@ class VariationalAutoEncoder(torch.nn.Module):
         self.dec1 = torch.nn.Linear(num_embeddings, 2 * num_features)
         self.dec2 = torch.nn.Linear(2 * num_features, num_features)
 
-        self.bn1_enc1 = torch.nn.BatchNorm1d(2 * num_features)
-        self.bn2_enc2 = torch.nn.BatchNorm1d(num_embeddings)
+        self.bn_enc1 = torch.nn.BatchNorm1d(2 * num_features)
+        self.bn_enc2 = torch.nn.BatchNorm1d(num_embeddings)
         self.bn_dec1 = torch.nn.BatchNorm1d(2 * num_features)
         self.bn_dec2 = torch.nn.BatchNorm1d(num_features)
 
     def encode(self, x):
-        x1 = leaky_relu(self.bn_dec1(self.enc1(x)))
-        return leaky_relu(self.bn_dec2(self.enc2(x1)))
+        x1 = leaky_relu(self.bn_enc1(self.enc1(x)))
+        return leaky_relu(self.bn_enc2(self.enc2(x1)))
 
     def decode(self, x):
         x1 = leaky_relu(self.bn_dec1(self.dec1(x)))

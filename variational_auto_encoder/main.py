@@ -3,6 +3,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from sklearn.datasets import make_classification
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 
 from vae import VariationalAutoEncoder
 
@@ -10,12 +11,13 @@ from vae import VariationalAutoEncoder
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Parameter section:
-N_SAMPLES = 1000
+N_SAMPLES = 10_000
 N_FEATURES = 20
 N_INFORMATIVE = 5
 N_REDUNDANT = 10
 N_CLUSTERS_PER_CLASS = 2
 N_EMBEDDINGS = 5
+N_EPOCHS = 100
 
 
 # Generate the data to work on and split it into training and testing sets:
@@ -66,7 +68,9 @@ def train(epoch):
         train_loss += L.item()
         optimiser.step()
 
-    print(f"Epoch {epoch}: Average loss: {train_loss / len(train_loader.dataset)}")
+    print(f"\nEpoch {epoch}: Average loss: {train_loss / len(train_loader.dataset)}")
+
+    return train_loss / len(train_loader.dataset)
 
 # Define the test function:
 def test(epoch):
@@ -80,6 +84,16 @@ def test(epoch):
 
     print(f"Test loss epoch {epoch}: {test_loss / len(test_loader.dataset)}")
 
+    return test_loss / len(test_loader.dataset)
+
 
 if __name__ == '__main__':
-    pass
+    train_losses = {}
+    test_losses = {}
+    for k in range(N_EPOCHS):
+        train_losses[k] = train(k)
+        test_losses[k] = test(k)
+
+    plt.plot(train_losses.keys(), train_losses.values(), test_losses.keys(), test_losses.values())
+    plt.legend(['train', 'test'])
+    plt.show()
