@@ -49,5 +49,37 @@ optimiser = torch.optim.Adam(vae.parameters(), lr=0.001)
 
 # Define the loss function:
 def loss(x, x_hat):
-    """Simple quadratic loss function."""
+    """Simple quadratic loss function on the reconstruction quality."""
     return torch.mean((x - x_hat) ** 2)
+
+
+# Define the training loop:
+def train(epoch):
+    vae.train()
+    train_loss = 0
+    for batch_idx, (data, _) in enumerate(train_loader):
+        data = data.to(DEVICE)
+        optimiser.zero_grad()
+        reconstruction_e, _ = vae(data)
+        L = loss(reconstruction_e, data)
+        L.backward()
+        train_loss += L.item()
+        optimiser.step()
+
+    print(f"Epoch {epoch}: Average loss: {train_loss / len(train_loader.dataset)}")
+
+# Define the test function:
+def test(epoch):
+    vae.eval()
+    test_loss = 0
+    with torch.no_grad():
+        for batch_idx, (data, _) in enumerate(test_loader):
+            data = data.to(DEVICE)
+            reconstruction_e, _ = vae(data)
+            test_loss += loss(reconstruction_e, data)
+
+    print(f"Test loss epoch {epoch}: {test_loss / len(test_loader.dataset)}")
+
+
+if __name__ == '__main__':
+    pass
