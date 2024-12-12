@@ -20,33 +20,31 @@ N_EMBEDDINGS = 5
 N_EPOCHS = 100
 
 
-# Generate the data to work on and split it into training and testing sets:
-X, y = make_classification(
-    n_samples=N_SAMPLES, n_features=N_FEATURES, n_informative=N_INFORMATIVE, n_redundant=N_REDUNDANT,
-    n_clusters_per_class=N_REDUNDANT, random_state=19770521,
-)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=19770521)
-mmscaler = MinMaxScaler()
-mmscaler.fit(X_train)
-X_train = mmscaler.transform(X_train)
-X_test = mmscaler.transform(X_test)
+def generate_synthetic_data(n_samples, n_features, n_informative, n_redundant, n_clusters_per_class):
+    # Generate the data to work on and split it into training and testing sets:
+    X, y = make_classification(
+        n_samples=n_samples, n_features=n_features, n_informative=n_informative, n_redundant=n_redundant,
+        n_clusters_per_class=n_clusters_per_class, random_state=19770521,
+    )
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=19770521)
+    mmscaler = MinMaxScaler()
+    mmscaler.fit(X_train)
+    X_train = mmscaler.transform(X_train)
+    X_test = mmscaler.transform(X_test)
 
 
-# Transform the data into PyTorch tensors:
-X_train = torch.tensor(X_train, dtype=torch.float32)
-X_test = torch.tensor(X_test, dtype=torch.float32)
-y_train = torch.tensor(y_train, dtype=torch.float32)
-y_test = torch.tensor(y_test, dtype=torch.float32)
+    # Transform the data into PyTorch tensors:
+    X_train = torch.tensor(X_train, dtype=torch.float32)
+    X_test = torch.tensor(X_test, dtype=torch.float32)
+    y_train = torch.tensor(y_train, dtype=torch.float32)
+    y_test = torch.tensor(y_test, dtype=torch.float32)
 
-train_set = TensorDataset(X_train, y_train)
-train_loader = DataLoader(train_set, batch_size=32, shuffle=True)
-test_set = TensorDataset(X_test, y_test)
-test_loader = DataLoader(test_set, batch_size=32, shuffle=False)
+    train_set = TensorDataset(X_train, y_train)
+    train_loader = DataLoader(train_set, batch_size=32, shuffle=True)
+    test_set = TensorDataset(X_test, y_test)
+    test_loader = DataLoader(test_set, batch_size=32, shuffle=False)
 
-
-# Set up the model:
-vae = VariationalAutoEncoder(num_features=N_FEATURES, num_embeddings=N_EMBEDDINGS).to(DEVICE)
-optimiser = torch.optim.Adam(vae.parameters(), lr=0.001)
+    return train_loader, test_loader
 
 
 # Define the loss function:
@@ -56,7 +54,7 @@ def loss(x, x_hat):
 
 
 # Define the training loop:
-def train(epoch):
+def train(vae, epoch):
     vae.train()
     train_loss = 0
     for batch_idx, (data, _) in enumerate(train_loader):
@@ -73,7 +71,7 @@ def train(epoch):
     return train_loss / len(train_loader.dataset)
 
 # Define the test function:
-def test(epoch):
+def test(vae, epoch):
     vae.eval()
     test_loss = 0
     with torch.no_grad():
@@ -88,11 +86,19 @@ def test(epoch):
 
 
 if __name__ == '__main__':
+    # Generate the data:
+    train_loader, test_loader = generate_synthetic_data(N_SAMPLES, N_FEATURES, N_INFORMATIVE, N_REDUNDANT, N_CLUSTERS_PER_CLASS)
+
+    # Set up the model:
+    vae = VariationalAutoEncoder(num_features=N_FEATURES, num_embeddings=N_EMBEDDINGS).to(DEVICE)
+    optimiser = torch.optim.Adam(vae.parameters(), lr=0.001)
+
+    # Train the model:
     train_losses = {}
     test_losses = {}
     for k in range(N_EPOCHS):
-        train_losses[k] = train(k)
-        test_losses[k] = test(k)
+        train_losses[k] = train(vae, k)
+        test_losses[k] = test(vae, k)
 
     plt.plot(train_losses.keys(), train_losses.values(), test_losses.keys(), test_losses.values())
     plt.legend(['train', 'test'])
