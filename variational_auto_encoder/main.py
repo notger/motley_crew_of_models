@@ -22,6 +22,7 @@ N_EPOCHS = 200
 
 PLOT_AFTER_EACH_RUN = False
 CONVERT_TO_DF = True
+FILENAME = "vae_study.csv"
 
 
 def generate_synthetic_data(n_samples, n_features, n_informative, n_redundant, n_clusters_per_class):
@@ -97,7 +98,7 @@ if __name__ == '__main__':
     df = None
 
     # Run the "study":
-    for n_embeddings in [1, N_INFORMATIVE // 2, N_INFORMATIVE, N_INFORMATIVE * 2, N_EMBEDDINGS]:
+    for n_embeddings in [1, N_INFORMATIVE // 2, N_INFORMATIVE, N_INFORMATIVE * 2, N_FEATURES]:
         # Set up the model:
         vae = VariationalAutoEncoder(num_features=N_FEATURES, num_embeddings=n_embeddings).to(DEVICE)
         optimiser = torch.optim.Adam(vae.parameters(), lr=0.001)
@@ -119,7 +120,7 @@ if __name__ == '__main__':
                 "k": list(train_losses.keys()),
                 "n_embeddings": [n_embeddings] * N_EPOCHS,
                 "train_losses": list(train_losses.values()),
-                "test_losses": list(test_losses.values()),
+                "test_losses": [float(x) for x in list(test_losses.values())],  # For some reason, we need to enforce floats here. :shrug:
             }
             if df is None:
                 df = pd.DataFrame(dat)
@@ -127,5 +128,5 @@ if __name__ == '__main__':
                 df = pd.concat([df, pd.DataFrame(dat)], ignore_index=True)
 
     if df is not None:
-        df.to_csv("vae_study.csv")
-        print(f"Stored the results for {N_EPOCHS} in 'vae_study.csv' and embedding sizes {df.n_embeddings.unique()}.")
+        df.to_csv(FILENAME)
+        print(f"Stored the results for {N_EPOCHS} in '{FILENAME}' and embedding sizes {df.n_embeddings.unique()}.")
