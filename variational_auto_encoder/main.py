@@ -22,7 +22,6 @@ N_EPOCHS = 200
 
 PLOT_AFTER_EACH_RUN = False
 CONVERT_TO_DF = True
-FILENAME = "vae_study.csv"
 
 
 def generate_synthetic_data(n_samples, n_features, n_informative, n_redundant, n_clusters_per_class):
@@ -128,5 +127,6 @@ if __name__ == '__main__':
                 df = pd.concat([df, pd.DataFrame(dat)], ignore_index=True)
 
     if df is not None:
-        df.to_csv(FILENAME)
-        print(f"Stored the results for {N_EPOCHS} in '{FILENAME}' and embedding sizes {df.n_embeddings.unique()}.")
+        filename = f"vae_study_n_informative_{N_INFORMATIVE}.csv"
+        df.to_csv(filename)
+        print(f"Stored the results for {N_EPOCHS} in '{filename}' and embedding sizes {df.n_embeddings.unique()}.")
