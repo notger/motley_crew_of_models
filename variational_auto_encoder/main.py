@@ -1,4 +1,5 @@
 import torch
+import pandas as pd
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.datasets import make_classification
 from sklearn.preprocessing import MinMaxScaler
@@ -17,7 +18,10 @@ N_INFORMATIVE = 5
 N_REDUNDANT = 10
 N_CLUSTERS_PER_CLASS = 2
 N_EMBEDDINGS = 5
-N_EPOCHS = 100
+N_EPOCHS = 200
+
+PLOT_AFTER_EACH_RUN = False
+CONVERT_TO_DF = True
 
 
 def generate_synthetic_data(n_samples, n_features, n_informative, n_redundant, n_clusters_per_class):
@@ -70,6 +74,7 @@ def train(vae, epoch):
 
     return train_loss / len(train_loader.dataset)
 
+
 # Define the test function:
 def test(vae, epoch):
     vae.eval()
@@ -89,17 +94,38 @@ if __name__ == '__main__':
     # Generate the data:
     train_loader, test_loader = generate_synthetic_data(N_SAMPLES, N_FEATURES, N_INFORMATIVE, N_REDUNDANT, N_CLUSTERS_PER_CLASS)
 
-    # Set up the model:
-    vae = VariationalAutoEncoder(num_features=N_FEATURES, num_embeddings=N_EMBEDDINGS).to(DEVICE)
-    optimiser = torch.optim.Adam(vae.parameters(), lr=0.001)
+    df = None
 
-    # Train the model:
-    train_losses = {}
-    test_losses = {}
-    for k in range(N_EPOCHS):
-        train_losses[k] = train(vae, k)
-        test_losses[k] = test(vae, k)
+    # Run the "study":
+    for n_embeddings in [1, N_INFORMATIVE // 2, N_INFORMATIVE, N_INFORMATIVE * 2, N_EMBEDDINGS]:
+        # Set up the model:
+        vae = VariationalAutoEncoder(num_features=N_FEATURES, num_embeddings=n_embeddings).to(DEVICE)
+        optimiser = torch.optim.Adam(vae.parameters(), lr=0.001)
 
-    plt.plot(train_losses.keys(), train_losses.values(), test_losses.keys(), test_losses.values())
-    plt.legend(['train', 'test'])
-    plt.show()
+        # Train the model:
+        train_losses = {}
+        test_losses = {}
+        for k in range(N_EPOCHS):
+            train_losses[k] = train(vae, k)
+            test_losses[k] = test(vae, k)
+
+        if PLOT_AFTER_EACH_RUN:
+            plt.plot(train_losses.keys(), train_losses.values(), test_losses.keys(), test_losses.values())
+            plt.legend(['train', 'test'])
+            plt.show()
+
+        if CONVERT_TO_DF:
+            dat = {
+                "k": list(train_losses.keys()),
+                "n_embeddings": [n_embeddings] * N_EPOCHS,
+                "train_losses": list(train_losses.values()),
+                "test_losses": list(test_losses.values()),
+            }
+            if df is None:
+                df = pd.DataFrame(dat)
+            else:
+                df = pd.concat([df, pd.DataFrame(dat)], ignore_index=True)
+
+    if df is not None:
+        df.to_csv("vae_study.csv")
+        print(f"Stored the results for {N_EPOCHS} in 'vae_study.csv' and embedding sizes {df.n_embeddings.unique()}.")
