@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 autogluon = "*"
+bokeh = "*"
 catboost = "*"
 jupyter = "*"
 matplotlib = "*"
