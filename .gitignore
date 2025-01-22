@@ -136,3 +136,6 @@ MNIST
 lightning_logs
 checkpoints
 plots
+
+# No data files, obviously:
+*.csv
