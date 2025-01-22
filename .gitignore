@@ -139,3 +139,7 @@ plots
 
 # No data files, obviously:
 *.csv
+
+# No model files:
+catboost_info
+AutogluonModels
