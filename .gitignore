@@ -139,7 +139,9 @@ plots
 
 # No data files, obviously:
 *.csv
-*.ts  # Video stream chunks
+*.ts
+*.png
+*data.json
 
 # No model files:
 catboost_info
