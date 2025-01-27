@@ -78,7 +78,7 @@ if __name__ == '__main__':
     # Run through 10 local files:
     # Todo: Generate the file list from local directory.
     for k in range(11):
-        filename = f'test_segment_{str(k).zfill(4)}.ts.png'
+        filename = f'test_segment_{str(k).zfill(4)}.ts.jpg'
         response = analyze_file_with_openai(f'video_parsing_via_llm_api/{filename}', PROMPT)
         content = response.choices[0].message.content
         if len(content.splitlines()) > 2:
