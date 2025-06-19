@@ -146,3 +146,4 @@ plots
 # No model files:
 catboost_info
 AutogluonModels
+model
