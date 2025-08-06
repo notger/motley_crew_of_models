@@ -20,6 +20,7 @@ seaborn = "*"
 scikit-learn = "*"
 torch = "*"
 tqdm = "*"
+gymnasium = {extras = ["toy-text"], version = "*"}
 
 [requires]
 python_version = "3.12"
