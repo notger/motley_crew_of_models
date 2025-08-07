@@ -24,7 +24,7 @@ num_episodes = 1000  # Number of episodes to run.
 q_table = np.zeros((env.observation_space.n, env.action_space.n))
 
 
-# Define the training loop.
+# Define the training loop:
 for episode in range(num_episodes):
     state, info = env.reset()
 
