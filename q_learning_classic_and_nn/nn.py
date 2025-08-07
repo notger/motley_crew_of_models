@@ -1,6 +1,13 @@
 """Neural net implementation of Q-learning on the FrozenLake environment.
 
-Want to check that I got the idea right, so I use the classic implementation as a reference."""
+Want to check that I got the idea right, so I use the classic implementation as a reference.
+
+The idea is: Instead of a Q-table, we use a neural network to approximate the action generation
+based on the state we are in. This should(!) allow us to scale to larger state spaces and incorporate
+tricky things like slippery surfaces, continuous state spaces, past history, etc.
+
+This is a first and dirty attempt, so we will definitely ignore some styling guidelines.
+"""
 
 import gymnasium as gym
 import numpy as np
