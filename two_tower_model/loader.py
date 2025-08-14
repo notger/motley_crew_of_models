@@ -5,9 +5,11 @@ The most important feature here is that you can specify how many users and movie
 Please see the README.md file for more information on how to use this module.
 """
 
+import numpy as np
 import pandas as pd
+from typing import Optional
 
-def load_raw_data(user_limit: int=None, movie_limit: int=None, path: str='two_tower_model/data/ml-32m/') -> tuple[dict, dict]:
+def load_raw_data(user_limit: Optional[int]=None, movie_limit: Optional[int]=None, path: str='two_tower_model/data/ml-32m/') -> tuple[pd.DataFrame, pd.DataFrame]:
     """Load raw MovieLens data with optional limits on users and movies.
 
     Args:
@@ -46,7 +48,7 @@ def load_raw_data(user_limit: int=None, movie_limit: int=None, path: str='two_to
     return movies, ratings
 
 
-def generate_genre_lookup(movies: pd.DataFrame) -> tuple[dict, list]:
+def generate_genre_lookup(movies: pd.DataFrame) -> tuple[dict, set]:
     """We want a lookup which maps a given movie (by id) to its genres."""
     lookup_movie_id_to_genres = {row.Index: row.genres.split('|') for row in movies.itertuples()}
     genres = set([genre for genre_list in lookup_movie_id_to_genres.values() for genre in genre_list])
@@ -69,7 +71,14 @@ def generate_aggregated_user_scores(ratings: pd.DataFrame) -> pd.DataFrame:
     
     Could also have been a regular dict, but if we have things as DataFrame, then doing it like this is quicker.
     """
-    return ratings.groupby('userId').agg({'movieId': lambda x: list(x), 'rating': lambda y: list(y)}).reset_index()
+    out = ratings.groupby('userId').agg(
+        {
+            'movieId': lambda x: list(x), 
+            'rating': lambda y: list(y),
+        }
+    ).reset_index()
+    out['avg'] = out.rating.apply(lambda x: np.mean(x))
+    return out
 
 
 if __name__ == "__main__":
