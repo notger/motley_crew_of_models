@@ -1,9 +1,10 @@
+import numpy as np
 import pandas as pd
 
 from collections import defaultdict
 
 
-def generate_user_features(aggregated_user_scores: pd.DataFrame, lookup_genre_to_emb: dict) -> dict:
+def generate_user_features(aggregated_user_scores: pd.DataFrame, genre_lookup: dict, lookup_genre_to_emb: dict) -> dict:
     user_features = {}
     N_features = max(lookup_genre_to_emb.values()) + 1
     
