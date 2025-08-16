@@ -20,10 +20,10 @@ import pandas as pd
 from collections import defaultdict
 
 
-def generate_user_features(aggregated_user_scores: pd.DataFrame, genre_lookup: dict, lookup_genre_to_emb: dict) -> pd:DataFrame:
+def generate_user_features(aggregated_user_scores: pd.DataFrame, genre_lookup: dict, lookup_genre_to_emb: dict, lookup_movie_id_to_emb: dict) -> pd.DataFrame:
     user_features = {}
     N_features_genres = max(lookup_genre_to_emb.values()) + 1
-    N_features_movies = max(genre_lookup.keys()) + 1
+    N_features_movies = max(lookup_movie_id_to_emb.values()) + 1
     
     # Generate the user's genre preferences:
     for row in aggregated_user_scores.itertuples():
@@ -64,7 +64,7 @@ def generate_user_features(aggregated_user_scores: pd.DataFrame, genre_lookup: d
         feature_movies_watched = np.zeros(N_features_movies)
 
         for movie_voted in movies_voted:
-            feature_movies_watched[movie_voted] = 1.0
+            feature_movies_watched[lookup_movie_id_to_emb[movie_voted]] = 1.0
     
         # Now bring it all together:
         user_features[user_id] = np.concatenate(
@@ -73,21 +73,21 @@ def generate_user_features(aggregated_user_scores: pd.DataFrame, genre_lookup: d
 
     # We now have a dict of user_id to features, but we have to transform this dict into a DataFrame
     # where each user comprises a row:
-    return pd.DataFrame.fromt_dict(user_features, orient='index')
+    return pd.DataFrame.from_dict(user_features, orient='index')
 
 
-def generate_movie_features(genre_lookup: dict, lookup_genre_to_emb: dict) -> pd.DataFrame:
+def generate_movie_features(genre_lookup: dict, lookup_genre_to_emb: dict, lookup_movie_id_to_emb: dict) -> pd.DataFrame:
     # This follows the same logic for the user feature function above, except since we are doing
     # one-hot encoding here and don't need to calculate genre rating averages, we can directly
     # generate the parts and then glue them together.
-    N_movies = max(genre_lookup.keys()) + 1
+    N_movies = max(lookup_movie_id_to_emb.values()) + 1
 
     feature_movie_one_hot = np.zeros((N_movies, N_movies))
     feature_genres = np.zeros((N_movies, max(lookup_genre_to_emb.values()) + 1))
 
     for k, (movie_id, genres) in enumerate(genre_lookup.items()):
-        feature_movie_one_hot[k, movie_id] = 1.0
+        feature_movie_one_hot[k, lookup_movie_id_to_emb[movie_id]] = 1.0
         for genre in genres:
-            feature_genres[k, genre] = 1.0
+            feature_genres[k, lookup_genre_to_emb[genre]] = 1.0
 
     return np.concatenate((feature_movie_one_hot, feature_genres), axis=1)
