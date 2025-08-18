@@ -76,7 +76,7 @@ def generate_user_features(aggregated_user_scores: pd.DataFrame, genre_lookup: d
     return pd.DataFrame.from_dict(user_features, orient='index')
 
 
-def generate_movie_features(genre_lookup: dict, lookup_genre_to_emb: dict, lookup_movie_id_to_emb: dict) -> pd.DataFrame:
+def generate_movie_features(genre_lookup: dict, lookup_genre_to_emb: dict, lookup_movie_id_to_emb: dict) -> (pd.DataFrame, pd.DataFrame):
     # This follows the same logic for the user feature function above, except since we are doing
     # one-hot encoding here and don't need to calculate genre rating averages, we can directly
     # generate the parts and then glue them together.
@@ -90,4 +90,4 @@ def generate_movie_features(genre_lookup: dict, lookup_genre_to_emb: dict, looku
         for genre in genres:
             feature_genres[k, lookup_genre_to_emb[genre]] = 1.0
 
-    return np.concatenate((feature_movie_one_hot, feature_genres), axis=1)
+    return (feature_movie_one_hot, feature_genres)
