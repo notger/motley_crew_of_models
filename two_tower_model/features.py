@@ -20,7 +20,12 @@ import pandas as pd
 from collections import defaultdict
 
 
-def generate_user_features(aggregated_user_scores: pd.DataFrame, genre_lookup: dict, lookup_genre_to_emb: dict, lookup_movie_id_to_emb: dict) -> pd.DataFrame:
+def generate_user_features(
+        aggregated_user_scores: pd.DataFrame, 
+        genre_lookup: dict, 
+        lookup_genre_to_emb: dict, 
+        lookup_movie_id_to_emb: dict
+    ) -> (pd.DataFrame, pd.DataFrame):
     user_features = {}
     N_features_genres = max(lookup_genre_to_emb.values()) + 1
     N_features_movies = max(lookup_movie_id_to_emb.values()) + 1
@@ -71,9 +76,12 @@ def generate_user_features(aggregated_user_scores: pd.DataFrame, genre_lookup: d
             (np.array(feature_movies_watched, copy=True), np.array(feature_genres, copy=True),)
         )
 
-    # We now have a dict of user_id to features, but we have to transform this dict into a DataFrame
+    raise NotImplementedError("Average user ratings are still missing! We want a lookup matrix from user_emb to movie_emb with their rating as value.")
+    
+
+    # We have a dict of user_id to features, but we have to transform this dict into a DataFrame
     # where each user comprises a row:
-    return pd.DataFrame.from_dict(user_features, orient='index')
+    return pd.DataFrame.from_dict(user_features, orient='index'), pd.DataFrame()
 
 
 def generate_movie_features(genre_lookup: dict, lookup_genre_to_emb: dict, lookup_movie_id_to_emb: dict) -> (pd.DataFrame, pd.DataFrame):

@@ -56,7 +56,12 @@ def generate_genre_lookup(movies: pd.DataFrame) -> tuple[dict, set]:
 
 
 def generate_embeddings(movies: pd.DataFrame, genres: list) -> tuple[dict, dict, dict, dict]:
-    """Generates the embeddings and the reverse lookup for those embeddings as dicts for the movies and the genres."""
+    """Generates the embeddings and the reverse lookup for those embeddings as dicts for the movies and the genres.
+    
+    It has to be noted that as we will transform them to the embedding space later, we technically have
+    two sorts of embeddings, so please don't get confused. These here are just scalar numbers which
+    serve to limit the number we have so we don't get outsized one-hot encoded input vectors.
+    """
     lookup_movie_id_to_emb = {movie_id: k for k, movie_id in enumerate(movies.index.unique())}
     lookup_emb_to_movie_id = {v: k for k, v in lookup_movie_id_to_emb.items()}
 
