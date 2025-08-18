@@ -128,8 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# VSCode
+# VSCode and Pycharm
 .vscode
+.idea
 
 # Pytorch Lightning and other:
 MNIST
@@ -139,6 +140,7 @@ plots
 
 # No data files, obviously:
 *.csv
+*.csv.zip
 *.ts
 *.png
 *data.json
@@ -147,3 +149,9 @@ plots
 catboost_info
 AutogluonModels
 model
+
+# No artifacts:
+*.jpg
+
+# No temporary files:
+*_tmp.*
