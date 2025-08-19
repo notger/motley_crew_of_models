@@ -29,9 +29,11 @@ def generate_user_features(
     user_features = {}
     N_features_genres = max(lookup_genre_to_emb.values()) + 1
     N_features_movies = max(lookup_movie_id_to_emb.values()) + 1
+
+    user_ratings = np.zeros((len(aggregated_user_scores) + 1, N_features_movies))
     
     # Generate the user's genre preferences:
-    for row in aggregated_user_scores.itertuples():
+    for k, row in enumerate(aggregated_user_scores.itertuples()):
         user_id = row.userId
         movies_voted = row.movieId
         ratings_voted = row.rating
@@ -40,6 +42,9 @@ def generate_user_features(
         
         # We first collect all ratings for a given genre, so that it is easier to calculate the average rating for this genre:
         for (movie_voted, rating) in zip(movies_voted, ratings_voted):
+            # First fill in the rating of that movie into the lookup table of user to ratings:
+            user_ratings[k][lookup_movie_id_to_emb[movie_voted]] = rating
+
             for genre in genre_lookup[movie_voted]:
                 genre_ratings[lookup_genre_to_emb[genre]].append(rating)
     
@@ -76,12 +81,9 @@ def generate_user_features(
             (np.array(feature_movies_watched, copy=True), np.array(feature_genres, copy=True),)
         )
 
-    raise NotImplementedError("Average user ratings are still missing! We want a lookup matrix from user_emb to movie_emb with their rating as value.")
-    
-
     # We have a dict of user_id to features, but we have to transform this dict into a DataFrame
     # where each user comprises a row:
-    return pd.DataFrame.from_dict(user_features, orient='index'), pd.DataFrame()
+    return pd.DataFrame.from_dict(user_features, orient='index'), pd.DataFrame(user_ratings)
 
 
 def generate_movie_features(genre_lookup: dict, lookup_genre_to_emb: dict, lookup_movie_id_to_emb: dict) -> (pd.DataFrame, pd.DataFrame):
