@@ -11,14 +11,13 @@ just done it differently.
 """
 
 import torch
-import pandas as pd
 
 
 class TwoTowerModel:
     def __init__(
-        user_features: pd.DataFrame, 
-        movie_features: pd.DataFrame, 
-        genre_features: pd.DataFrame,
+        user_features: torch.Tensor, 
+        movie_features: torch.Tensor, 
+        genre_features: torch.Tensor,
     ):
         self.W_user = torch.randn(user_features.shape[1], user_features_embedding_size)
         self.b_user = torch.randn(user_features_embedding_size)

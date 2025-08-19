@@ -40,7 +40,10 @@ user_features, user_movie_ratings = generate_user_features(aggregated_user_score
 movie_features, genre_features = generate_movie_features(genre_lookup, lookup_genre_to_emb, lookup_movie_id_to_emb)
 
 # Convert all input vectors into torch tensors:
-raise NotImplementedError()
+user_features = torch.from_numpy(user_features)
+user_movie_ratings = torch.from_numpy(user_movie_ratings)
+movie_features = torch.from_numpy(movie_features)
+genre_features = torch.from_numpy(genre_features)
 
 # ================================== Model definition ========================================
 mdl = TwoTowerModel(user_features, movie_features, genre_features)
