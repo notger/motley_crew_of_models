@@ -27,18 +27,23 @@ from two_tower_model.model import *
 
 
 # ================================== Parameters ==============================================
+# WARNING: Setting the following values to None loads all data. You do not have enough memory for this stunt.
+# Set the values to integers instead. I might at some point optimise memory usage.
+user_limit = 1000
+movie_limit = 1000
+
 movie_embedding_size = 20
 genre_embedding_size = 20
 user_features_embedding_size = movie_embedding_size + genre_embedding_size
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-N_epochs = 10_000  # We will be running random batches from our data in each epoch.
-batch_size = 100
+N_epochs = 100_000  # We will be running random batches from our data in each epoch.
+batch_size = 1000
 log_every = 1000
 loss_filter_window_length = 10  # We will log the last x losses to calculate a running mean.
 
 # ================================== Data loading and prep ===================================
-movies, ratings = load_raw_data(user_limit=1000, movie_limit=500)
+movies, ratings = load_raw_data(user_limit=user_limit, movie_limit=movie_limit)
 genre_lookup, genres = generate_genre_lookup(movies)
 lookup_movie_id_to_emb, lookup_emb_to_movie_id, lookup_genre_to_emb, lookup_emb_to_genre = generate_embeddings(movies, genres)
 aggregated_user_scores = generate_aggregated_user_scores(ratings)
@@ -59,11 +64,11 @@ mdl = TwoTowerModel(
 )
 
 # ================================== Model training ==========================================
-optimiser = torch.optim.SGD(mdl.parameters(), lr=0.001, momentum=0.9)
+optimiser = torch.optim.SGD(mdl.parameters(), lr=0.000001, momentum=0.9)
 loss_fn = torch.nn.MSELoss()
 
-filtered_loss = [1e6] * loss_filter_window_length
-for epoch in tqdm.tqdm(range(1, N_epochs + 1)):
+filtered_loss = []
+for epoch in range(1, N_epochs + 1):
     # Generate the random batch:
     user_batch, move_batch, genre_batch, ratings_batch = generate_batch(
         user_features, movie_features, genre_features, user_movie_ratings, batch_size
