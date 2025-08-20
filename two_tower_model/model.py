@@ -27,7 +27,7 @@ class TwoTowerModel(torch.nn.Module):
         self.Wu = torch.nn.Linear(user_features.shape[1], user_features_embedding_size)
         self.Wm = torch.nn.Linear(movie_features.shape[1], movie_embedding_size)
         self.Wg = torch.nn.Linear(genre_features.shape[1], genre_embedding_size)
-        self.float()
+        self.double()
 
     def forward(
         self,

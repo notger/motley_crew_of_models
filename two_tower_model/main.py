@@ -22,6 +22,7 @@ import numpy as np
 
 from two_tower_model.loader import *
 from two_tower_model.features import *
+from two_tower_model.training import *
 from two_tower_model.model import *
 
 
@@ -46,10 +47,10 @@ user_features, user_movie_ratings = generate_user_features(aggregated_user_score
 movie_features, genre_features = generate_movie_features(genre_lookup, lookup_genre_to_emb, lookup_movie_id_to_emb)
 
 # Convert all input vectors into torch tensors:
-user_features = torch.from_numpy(user_features).float()
-user_movie_ratings = torch.from_numpy(user_movie_ratings).float()
-movie_features = torch.from_numpy(movie_features).float()
-genre_features = torch.from_numpy(genre_features).float()
+user_features = torch.from_numpy(user_features)
+user_movie_ratings = torch.from_numpy(user_movie_ratings)
+movie_features = torch.from_numpy(movie_features)
+genre_features = torch.from_numpy(genre_features)
 
 # ================================== Model definition ========================================
 mdl = TwoTowerModel(
@@ -61,24 +62,6 @@ mdl = TwoTowerModel(
 optimiser = torch.optim.SGD(mdl.parameters(), lr=0.001, momentum=0.9)
 loss_fn = torch.nn.MSELoss()
 
-def generate_batch(user_features, movie_features, genre_features, user_movie_ratings, batch_size):
-    # Generate a random batch of users:
-    user_indices = torch.randint(0, user_features.shape[0], (batch_size,))
-    X_user = user_features[user_indices, :]
-    
-    # Generate a random batch of movies and genres:
-    movie_indices = torch.randint(0, movie_features.shape[0], (batch_size,))
-    X_movies = movie_features[movie_indices, :]
-    X_genres = genre_features[movie_indices, :]
-
-    # Extract user ratings for the batch of users and the batch of movies generated:
-    X_ratings = np.zeros((batch_size,))
-    for ui, mi in enumerate(movie_indices):
-        X_ratings[ui] = user_movie_ratings[ui, mi]
-    X_ratings = torch.from_numpy(X_ratings)
-
-    return X_user, X_movies, X_genres, X_ratings
-
 filtered_loss = [1e6] * loss_filter_window_length
 for epoch in tqdm.tqdm(range(1, N_epochs + 1)):
     # Generate the random batch:
@@ -89,10 +72,13 @@ for epoch in tqdm.tqdm(range(1, N_epochs + 1)):
     output = mdl.forward(user_batch, move_batch, genre_batch)
     loss = loss_fn(output, ratings_batch)
     loss.backward()
-
     optimiser.step()
 
-    filtered_loss = filtered_loss[1:] + [loss.item()]  # This could be more elegant, but we are doing so many heavy stuff here, this does not matter anymore.
+    # The following could be more elegant, but we are doing so many heavy stuff here, this does not matter anymore.
+    if epoch < 10:
+        filtered_loss.append(loss.item())
+    else:
+        filtered_loss = filtered_loss[1:] + [loss.item()]  
 
     if epoch % log_every == 0:
         print(f"Epoch {epoch} loss: {np.mean(filtered_loss)}")
