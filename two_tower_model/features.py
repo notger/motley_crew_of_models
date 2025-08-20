@@ -25,7 +25,7 @@ def generate_user_features(
         genre_lookup: dict, 
         lookup_genre_to_emb: dict, 
         lookup_movie_id_to_emb: dict
-    ) -> (pd.DataFrame, pd.DataFrame):
+    ) -> (np.ndarray, np.ndarray):
     user_features = {}
     N_features_genres = max(lookup_genre_to_emb.values()) + 1
     N_features_movies = max(lookup_movie_id_to_emb.values()) + 1
@@ -83,10 +83,10 @@ def generate_user_features(
 
     # We have a dict of user_id to features, but we have to transform this dict into a DataFrame
     # where each user comprises a row:
-    return pd.DataFrame.from_dict(user_features, orient='index'), pd.DataFrame(user_ratings)
+    return pd.DataFrame.from_dict(user_features, orient='index').values, pd.DataFrame(user_ratings).values
 
 
-def generate_movie_features(genre_lookup: dict, lookup_genre_to_emb: dict, lookup_movie_id_to_emb: dict) -> (pd.DataFrame, pd.DataFrame):
+def generate_movie_features(genre_lookup: dict, lookup_genre_to_emb: dict, lookup_movie_id_to_emb: dict) -> (np.ndarray, np.ndarray):
     # This follows the same logic for the user feature function above, except since we are doing
     # one-hot encoding here and don't need to calculate genre rating averages, we can directly
     # generate the parts and then glue them together.
